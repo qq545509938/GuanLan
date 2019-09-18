@@ -1,6 +1,7 @@
 
 import ccclass = cc._decorator.ccclass;
 import property = cc._decorator.property;
+import {Sound} from "./Sound";
 
 
 @ccclass
@@ -8,37 +9,43 @@ class startScene extends cc.Component {
 
     @property(cc.Node)
     rule: cc.Node = null;
-    @property(cc.Node)
-    closeMusic: cc.Node = null;
+    @property(cc.Toggle)
+    tge_yinyue: cc.Toggle = null;
+    sound: Sound;
 
     onLoad() {
+        this.sound = this.node.getComponent(Sound);
         this.rule.active = false;
-        let isCloseMusic = cc.sys.localStorage.getItem("isCloseMusic") || 0;
-        this.closeMusic.active = isCloseMusic;
+        let music = cc.sys.localStorage.getItem("volume");
+        this.tge_yinyue.isChecked = music == "0" ? true : false;
         this.playSound();
     }
 
     OnClick(eventTouch) {
         let btnNode = eventTouch.currentTarget;
         let btnName = btnNode.name;
+        this.sound.PlayOnClick();
         if(btnName == "kaishi") {
             cc.director.loadScene("gameScene");
         } else if(btnName == "guize") {
             this.rule.active = true;
         } else if(btnName == "shengyin") {
-            let isCloseMusic = cc.sys.localStorage.getItem("isCloseMusic") || 0;
-            this.closeMusic.active = isCloseMusic == 0 ? true : false;
-            isCloseMusic = isCloseMusic == 0 ? 1 : 0;
-            cc.sys.localStorage.setItem("isCloseMusic", isCloseMusic);
-            this.playSound();
+           this.playSound();
         } else if(btnName == "guanbi") {
             this.rule.active = false;
         }
     }
 
     playSound() {
-        let isCloseMusic = cc.sys.localStorage.getItem("isCloseMusic") || 0;
-        let volume = isCloseMusic == 0 ? 0.5 : 0.01;
-        // cc.audioEngine.play(cc.url.raw("resources/sound/button.mp3"), false, volume);
+        if (this.tge_yinyue.isChecked) {
+            cc.audioEngine.setMusicVolume(0);
+            cc.audioEngine.setEffectsVolume(0);
+            cc.sys.localStorage.setItem("volume", 0);
+        } else {
+            cc.audioEngine.setMusicVolume(1);
+            cc.audioEngine.setEffectsVolume(1);
+            cc.sys.localStorage.setItem("volume", 1);
+        }
     }
+
 }

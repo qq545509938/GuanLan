@@ -1,9 +1,8 @@
 import ccclass = cc._decorator.ccclass;
 import property = cc._decorator.property;
+import {Sound} from "./Sound";
 @ccclass
 class gameScene extends cc.Component {
-
-
 
     @property(cc.Node)//半个篮筐碰撞检测
     lanban = null;
@@ -87,8 +86,10 @@ class gameScene extends cc.Component {
     leftTime = 0;
     dirction = 1;
     time = 0;
+    sound: Sound;
 
     onLoad() {
+        this.sound = this.node.getComponent(Sound);
         cc.director.getCollisionManager().enabled = true;
         cc.director.getCollisionManager().enabledDebugDraw = true;
         cc.director.getPhysicsManager().enabled = true;
@@ -108,6 +109,7 @@ class gameScene extends cc.Component {
 
     jump() {
         if(!this.end.active) {
+            this.sound.PlayJump();
             let xSpeed = this.speedX * this.dirction;
             this.rigidBody.linearVelocity = cc.v2(xSpeed, this.speedY);
             this.rigidBody.angularVelocity = this.rotationSpeed * this.dirction;
@@ -133,7 +135,7 @@ class gameScene extends cc.Component {
         this.lanbanMove.active = true;
         this.lanban.active = false;
         this.lanban2.active = false;
-
+        this.sound.PlayGetScore();
         if(this.dirction > 0) {
             this.dirction *= -1;
             //移出屏幕
@@ -160,12 +162,12 @@ class gameScene extends cc.Component {
                     goal.setPosition(39.1, -73.6);
                 };
                 let list = [actionLeft, cc.callFunc(call)];
-                this.lanbanMove.runAction(new cc.sequence(list));
+                this.lanbanMove.runAction(cc.sequence(list));
 
             };
             let actionList = [actionRight, cc.callFunc(callBack)];
 
-            this.lanbanMove.runAction(new cc.sequence(actionList));
+            this.lanbanMove.runAction(cc.sequence(actionList));
         } else {
             this.dirction *= -1;
             //移出屏幕
@@ -192,11 +194,11 @@ class gameScene extends cc.Component {
                     goal.setPosition(39.1, -73.6);
                 };
                 let list = [actionRight, cc.callFunc(call)];
-                this.lanbanMove.runAction(new cc.sequence(list));
+                this.lanbanMove.runAction(cc.sequence(list));
 
             };
             let actionList = [actionLeft, cc.callFunc(callBack)];
-            this.lanbanMove.runAction(new cc.sequence(actionList));
+            this.lanbanMove.runAction(cc.sequence(actionList));
         }
     }
 
@@ -217,6 +219,7 @@ class gameScene extends cc.Component {
         }
         if(this.leftTime >= this.time && !this.end.active) {
             this.end.active = true;
+            this.sound.PlayEnd();
             let score = cc.sys.localStorage.getItem("guanlanScore") || 0;
             let maxScore = Math.max(score, Number(this.score.string));
             cc.sys.localStorage.setItem("guanlanScore", maxScore);
@@ -230,6 +233,7 @@ class gameScene extends cc.Component {
     OnClick(eventTouch) {
         let btnNode = eventTouch.currentTarget;
         let btnName = btnNode.name;
+        this.sound.PlayOnClick();
         if(btnName == "kaishi") {
             cc.director.loadScene("gameScene");
         }
