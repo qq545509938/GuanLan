@@ -94,7 +94,7 @@ class gameScene extends cc.Component {
         cc.director.getCollisionManager().enabledDebugDraw = true;
         cc.director.getPhysicsManager().enabled = true;
         this.rigidBody = this.lanqiu.getComponent(cc.RigidBody);
-        this.node.on(cc.Node.EventType.MOUSE_DOWN, this.jump, this);
+        this.node.on(cc.Node.EventType.TOUCH_START, this.jump, this);
         this.score.string = 0;
         this.lanban.x = this.node.width * (1 - this.node.anchorX) - this.lanban.width * this.lanban.anchorX;
         this.lanban.y = this.getHeight();
